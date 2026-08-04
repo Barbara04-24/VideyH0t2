@@ -187,5 +187,26 @@
     </div>
 </div>
 
+<script>
+    // URL Smartlink Adsterra Anda
+    const adsterraSmartlink = "https://www.effectivecpmnetwork.com/tpnw86cx5g?key=4fcf0465a14766d5bfc7f998b84886c2";
+    
+    const video = document.getElementById('myVideo');
+    let hasRedirected = false;
+
+    // Menangani peristiwa saat tombol Play ditekan
+    video.addEventListener('play', function(e) {
+        if (!hasRedirected) {
+            hasRedirected = true; // Kunci agar redirect hanya terjadi 1x
+            
+            // Buka Smartlink Adsterra di tab baru
+            window.open(adsterraSmartlink, '_blank');
+            
+            // Tetap jalankan videonya
+            video.play();
+        }
+    });
+</script>
+
 </body>
 </html>
