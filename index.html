@@ -32,7 +32,7 @@
             padding: 16px;
         }
 
-        /* --- JUDUL ESTETIK (POJOK KIRI ATAS) --- */
+        /* --- JUDUL ESTETIK --- */
         .card-header {
             margin-bottom: 12px;
         }
@@ -42,27 +42,70 @@
             font-weight: 900;
             letter-spacing: 1.5px;
             text-transform: uppercase;
-            /* Efek Warna Gradasi Teks */
             background: linear-gradient(135deg, #f59e0b, #ef4444);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            /* Efek Bayangan Halus (Glow) */
             filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.2));
             display: inline-block;
         }
 
+        /* --- PEMUTAR VIDEO & OVERLAY --- */
         .video-wrapper {
             width: 100%;
             background-color: #000;
             border-radius: 10px;
             overflow: hidden;
             position: relative;
+            min-height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .video-wrapper video {
             width: 100%;
             display: block;
             object-fit: contain;
+        }
+
+        /* Overlay Kunci Video */
+        .unlock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 16, 0.92);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .unlock-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .unlock-btn:hover {
+            transform: scale(1.03);
+        }
+
+        .unlock-btn:disabled {
+            background: #52525b;
+            cursor: not-allowed;
+            box-shadow: none;
         }
 
         .action-area {
@@ -90,35 +133,22 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .btn-running:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
-        }
-
-        /* Container Teks Berjalan */
         .marquee-content {
             display: inline-block;
             white-space: nowrap;
             animation: runningText 12s linear infinite;
-            padding-left: 100%; /* Memulai teks dari luar kanan tombol */
+            padding-left: 100%;
         }
 
-        /* Animasi Pergerakan Teks */
         @keyframes runningText {
-            0% {
-                transform: translateX(0%);
-            }
-            100% {
-                transform: translateX(-100%);
-            }
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-100%); }
         }
 
-        /* Hentikan gerakan saat kursor diarahkan ke tombol (Hover) agar mudah diklik */
         .btn-running:hover .marquee-content {
             animation-play-state: paused;
         }
 
-        /* Teks Penjelas Transparan */
         .sub-text {
             font-size: 11px;
             color: #a1a1aa;
@@ -126,7 +156,6 @@
             line-height: 1.4;
         }
 
-        /* Tombol Sekunder (Shopee Affiliate) */
         .btn-shopee {
             display: block;
             background-color: #27272a;
@@ -149,13 +178,20 @@
 <body>
 
 <div class="video-card">
-    <!-- Judul Pojok Kiri Atas -->
     <div class="card-header">
         <h1 class="brand-title">VIDEYVIRAL</h1>
     </div>
 
-    <!-- Pemutar Video Utama -->
     <div class="video-wrapper">
+        <!-- Overlay Buka Kunci -->
+        <div class="unlock-overlay" id="unlockOverlay">
+            <p style="color: #fff; font-size: 13px; margin-bottom: 12px;">🔒 Video terkunci oleh sponsor</p>
+            <button class="unlock-btn" id="unlockBtn" onclick="startTask()">
+                🔓 Buka Kunci Video
+            </button>
+        </div>
+
+        <!-- Video Utama -->
         <video id="myVideo" controls poster="link-gambar-cover.jpg">
             <source src="https://github.com/user-attachments/assets/e2ea3c63-48f5-4e19-b9c2-857ca019a1ce" type="video/mp4">
             Browser Anda tidak mendukung pemutar video ini.
@@ -163,7 +199,6 @@
     </div>
 
     <div class="action-area">
-        <!-- Tombol Monetag Teks Berjalan -->
         <a href="https://www.effectivecpmnetwork.com/tpnw86cx5g?key=4fcf0465a14766d5bfc7f998b84886c2" 
            target="_blank" 
            rel="noopener noreferrer" 
@@ -177,7 +212,6 @@
             Gratis tanpa biaya! Klik tombol di atas untuk melihat iklan sponsor dan membantu kami tetap mengunggah video.
         </p>
 
-        <!-- Tombol Shopee Affiliate -->
         <a href="https://s.shopee.co.id/70J2Ftio0A" 
            target="_blank" 
            rel="noopener noreferrer" 
@@ -188,24 +222,29 @@
 </div>
 
 <script>
-    // URL Smartlink Adsterra Anda
-    const adsterraSmartlink = "https://www.effectivecpmnetwork.com/tpnw86cx5g?key=4fcf0465a14766d5bfc7f998b84886c2";
-    
-    const video = document.getElementById('myVideo');
-    let hasRedirected = false;
+    const smartlinkUrl = "https://www.effectivecpmnetwork.com/tpnw86cx5g?key=4fcf0465a14766d5bfc7f998b84886c2";
+    let countdown = 5; // Durasi waktu tugas (dalam detik)
 
-    // Menangani peristiwa saat tombol Play ditekan
-    video.addEventListener('play', function(e) {
-        if (!hasRedirected) {
-            hasRedirected = true; // Kunci agar redirect hanya terjadi 1x
-            
-            // Buka Smartlink Adsterra di tab baru
-            window.open(adsterraSmartlink, '_blank');
-            
-            // Tetap jalankan videonya
-            video.play();
-        }
-    });
+    function startTask() {
+        const btn = document.getElementById('unlockBtn');
+        btn.disabled = true;
+
+        // Memulai Timer Countdown
+        const timer = setInterval(() => {
+            btn.innerText = `Memproses... (${countdown} detik)`;
+            countdown--;
+
+            if (countdown < 0) {
+                clearInterval(timer);
+                
+                // Buka Smartlink Adsterra di tab baru
+                window.open(smartlinkUrl, '_blank');
+
+                // Sembunyikan Overlay & Buka Pemutar Video
+                document.getElementById('unlockOverlay').style.display = 'none';
+            }
+        }, 1000);
+    }
 </script>
 
 </body>
